@@ -23,7 +23,7 @@ pr.s_span = 3:3:12; % sparsity
 pr.amp = 1; %amplification factor 
 pr.del_p = 0.005; % ps = del*m (sparsity pertaining to error in p)
 pr.method = 'justice-pursuit';
-pr.init_method = 'true-rcm';
+pr.init_method = 'simple-rcm';
 pr.svd_opt = 'svd';
 pr.plot_method = 'mean-error';
 
@@ -56,6 +56,10 @@ for j = 1:length(pr.mspan)
 %                     [x_0,p_refined,idx] = rcm_init(A,y_mod,s,pr);
                 case 'true-rcm'
                     [x_0,p_refined] = true_rcm_init(A,y_mod,s,pr);
+                    %extra line added to make x_0 sparse
+                    x_0 = make_sparse(x_0,s);
+                case 'simple-rcm'
+                    [x_0,p_refined] = simple_rcm_init(A,y_mod,s,pr);
                     %extra line added to make x_0 sparse
                     x_0 = make_sparse(x_0,s);
             end
@@ -128,8 +132,8 @@ toc
 % y_sorted = sort(y_true, 'ComparisonMethod','abs');
 % y_sorted(1:length(p_err_idx))
 
-if ~exist('./results', 'dir')
-       mkdir('./results')
+if ~exist('../results', 'dir')
+       mkdir('../results')
 end
 pr.mspan1 = 100:100:1000;
 construct_subplots(reconst_err,pr,['rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...
