@@ -2,11 +2,12 @@
 ### This repository provides matlab implementation for the MoRAM algorithm as discussed in Signal [Reconstruction from Modulo Observations](https://arxiv.org/pdf/1812.00557.pdf).
 
 ## Requirements
-* The code uses SPGL ([SPGL1: A solver for large-scale sparse reconstruction](https://www.cs.ubc.ca/~mpf/spgl1/index.html)). All the required matlab files are included in the repo (under folder spgl), however, in case if you experience difficulties using SPGL, kindly install SPGL package on your system using the instructions provided on their website.
+* The code uses SPGL ([SPGL1: A solver for large-scale sparse reconstruction](https://www.cs.ubc.ca/~mpf/spgl1/index.html)). All the required matlab files are included in the repo (under folder `spgl1-1.9`), however, in case if you experience difficulties using SPGL, kindly install SPGL package on your system using the instructions provided on their website.
 * Code is developed and tested with Matlab version 2017a.
 * A sample test image of lovett hall (as used in the paper) is provided in the `test_images` folder. Test iamge is loaded, cropped to appropriate size, and transformed using Haar wavelets within the code.
 
 ## Instructions
+* Add all folders and sub-folders to matlab path.
 * The mean-reconstruction-error plots as provided in the paper can be reproduced by running the file `mod_reconst.m`. 
 * The image reconstruction results as provided in the paper can be reproduced by running the file `img_mod_reconst.m`.
 * Results would be stored in the `./results` directory.
@@ -29,9 +30,9 @@ Parts of this code is adopted from codes written by Gauri Jagatap. We also ackno
 
 ## Cite
 Following bibtex can be used to cite our manuscript:
-```@article{shah2018signal,
+`@article{shah2018signal,
   title={Signal reconstruction from modulo observations},
   author={Shah, Viraj and Hegde, Chinmay},
   journal={arXiv preprint arXiv:1812.00557},
   year={2018}
-}```
+}`
