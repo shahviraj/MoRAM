@@ -23,7 +23,7 @@
   - `pr.init_method` => Initial estimation method to be used. Use `rcm` to reproduce the results from the paper.
 
 ## Support
-Kindly contact Viraj Shah (vjshah3@illinois.edu) in case any help is needed.
+Kindly contact [Viraj Shah](http://virajshah.me) (vjshah3@illinois.edu) in case any help is needed.
 
 ## Acknowledgements
 Parts of this code is adopted from codes written by Gauri Jagatap. We also acknowledge the developers of SPGL library. 
