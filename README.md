@@ -30,9 +30,9 @@ Parts of this code is adopted from codes written by Gauri Jagatap. We also ackno
 
 ## Cite
 Following bibtex can be used to cite our manuscript:
-`@article{shah2018signal,
+```@article{shah2018signal,
   title={Signal reconstruction from modulo observations},
   author={Shah, Viraj and Hegde, Chinmay},
   journal={arXiv preprint arXiv:1812.00557},
   year={2018}
-}`
+}
