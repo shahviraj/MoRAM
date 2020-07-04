@@ -1,5 +1,5 @@
 # MoRAM - Modulo Recovery using Alternating Minimization
-### This repository provides matlab implementation for the MoRAM algorithm as discussed in Signal [Reconstruction from Modulo Observations](https://arxiv.org/pdf/1812.00557.pdf).
+### This repository provides matlab implementation for the MoRAM algorithm as discussed in [Signal Reconstruction from Modulo Observations](https://arxiv.org/pdf/1812.00557.pdf).
 
 ## Requirements
 * The code uses SPGL ([SPGL1: A solver for large-scale sparse reconstruction](https://www.cs.ubc.ca/~mpf/spgl1/index.html)). All the required matlab files are included in the repo (under folder `spgl1-1.9`), however, in case if you experience difficulties using SPGL, kindly install SPGL package on your system using the instructions provided on their website.
