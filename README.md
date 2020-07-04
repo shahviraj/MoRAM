@@ -7,7 +7,7 @@
 * A sample test image of lovett hall (as used in the paper) is provided in the `test_images` folder. Test iamge is loaded, cropped to appropriate size, and transformed using Haar wavelets within the code.
 
 ## Instructions
-* Add all folders and sub-folders to matlab path.
+* Add all folders and sub-folders to matlab path. Run all the scripts from the root directory.
 * The mean-reconstruction-error plots as provided in the paper can be reproduced by running the file `mod_reconst.m`. 
 * The image reconstruction results as provided in the paper can be reproduced by running the file `img_mod_reconst.m`.
 * Results would be stored in the `./results` directory.
