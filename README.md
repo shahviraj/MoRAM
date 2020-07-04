@@ -20,7 +20,7 @@
   - `pr.mspan` => List of different values of number of measurements (m) to be considered.
   - `pr.s_span` => List of different sparsity values to be considered.
   - `pr.method` =>  Compressed Recovery method to be used. Use `justice-pursuit` to reproduce the results from the paper.
-  - `pr.init_method` => Initial estimation method to be used. Use `rcm` to reproduce the results from the paper.
+  - `pr.init_method` => Initial estimation method to be used. Use `simple_rcm` to reproduce the results from the paper. Other methods are experimental, and not to be considered.
 
 ## Support
 Kindly contact [Viraj Shah](http://virajshah.me) (vjshah3@illinois.edu) in case any help is needed.
