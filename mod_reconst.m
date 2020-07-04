@@ -132,8 +132,8 @@ toc
 % y_sorted = sort(y_true, 'ComparisonMethod','abs');
 % y_sorted(1:length(p_err_idx))
 
-if ~exist('../results', 'dir')
-       mkdir('../results')
+if ~exist('./results', 'dir')
+       mkdir('./results')
 end
 pr.mspan1 = 100:100:1000;
 construct_subplots(reconst_err,pr,['rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...

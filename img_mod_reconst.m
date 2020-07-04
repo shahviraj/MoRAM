@@ -69,7 +69,7 @@ pr.s_span = 800:800:800; % sparsity
 pr.amp = 1; %amplification factor 
 pr.del_p = 0.005; % ps = del*m (sparsity pertaining to error in p)
 pr.method = 'justice-pursuit';
-pr.init_method = 'true-rcm';
+pr.init_method = 'simple-rcm';
 pr.svd_opt = 'svd';
 pr.plot_method = 'mean-error';
 
@@ -110,6 +110,10 @@ for j = 1:length(pr.mspan)
 %                     [x_0,p_refined,idx] = rcm_init(A,y_mod,s,pr);
                 case 'true-rcm'
                     [x_0,p_refined] = true_rcm_init(A,y_mod,s,pr);
+                    %extra line added to make x_0 sparse
+                    x_0 = make_sparse(x_0,s);
+                case 'simple-rcm'
+                    [x_0,p_refined] = simple_rcm_init(A,y_mod,s,pr);
                     %extra line added to make x_0 sparse
                     x_0 = make_sparse(x_0,s);
             end
@@ -172,7 +176,9 @@ for j = 1:length(pr.mspan)
     end
     
 end
-
+if ~exist('./results', 'dir')
+       mkdir('./results')
+end
 z = norm_z*z;
 x = norm_z*x;
 im1 = waverec2(c,c_ind,wavname);
