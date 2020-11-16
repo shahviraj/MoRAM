@@ -1,4 +1,4 @@
-function [y_mod,y_p,A] = modulo_measure_signal(m,z,R)
+function [y_mod,y, y_p,A] = modulo_measure_signal(m,z,R)
 %edited 2/15/2017
 n = length(z);
 %% signal measurement

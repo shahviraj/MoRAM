@@ -1,60 +1,15 @@
 clear all;
 clc;
-
-N = 512^2; %signal length
-scal = 1/4;
-n = N*(scal^2);
-%s = 2000;
-%load image
-image = 'lovett';
-if strcmp(image, 'lovett')
-    im = imread('test_images/Lovett_Hall.jpg');
-% im = imread('test_images/Catt_Hall3.jpg');
-%     im = imresize(im,[512 512]);
-    im = im2double(im);
-    im = im(:,(400-250):(400+250),:);
-    %im = im(:,(500-250):(500+250),:);
-    nn = 512;
-    im_sq = imresize(im,[nn nn],'bicubic');
-    imgray = rgb2gray(im_sq);
-else
-    error('Unknown image')
-end           
-imgray = imresize(imgray,scal);
-nn = scal*nn;
-lev = floor(log(nn)/log(2));
-
-%important: 'per' ensures you get a non-redundant transform.
-wavmode = 'per';
-wavname = 'haar';
-dwtmode(wavmode,'nodisp')
-[c,c_ind] = wavedec2(imgray,lev,wavname);
-
-% abs_c = abs(c');
-% [sorted_c, indx_c] = sort(abs_c,'descend');
-% 
-% sparse_c = zeros(size(c',1),1);
-% sparse_c(indx_c(1:s)) = c(indx_c(1:s)); 
-% supp_c = indx_c(1:s);
-% 
-% 
-% im1 = waverec2(c,c_ind,wavname);
-% im2 = waverec2(sparse_c, c_ind, wavname);
-% 
-% figure, imshow([im1 im2]), axis image;
-% title('Actual v/s Sparse');
-
-
-%c_rearranged = rearrange_wavedec2(c, 'forward');
+tic;
 %rng ('shuffle')
 pr = struct;
 %Fixed parameters
-%pr.n = 1000; %length of the input signal
+pr.n = 1000; %length of the input signal
 pr.b = 1; %number of blocks if signal is block-sparse; otherwise keep 1
 pr.tol1 = 1e-5; %error tolerance for measurements
 pr.tol2 = 1e-7;
-pr.max_iter = 2;
-pr.R = 3.6; %period of the modulo function
+pr.max_iter = 5;
+pr.r_span = 3:0.1:4.0; %period of the modulo function
 pr.rho = 3;%spread of the true measurements, y =A*z
 pr.del = 1; %truncation factor for supp estimation
 pr.spgl_opts = spgSetParms('verbosity',0);
@@ -62,10 +17,9 @@ pr.spgl_opts = spgSetParms('verbosity',0);
 %pr.mspan1 = [100:100:2000];
 %pr.mspan2 = [600:100:1000];
 %pr.mspan=[pr.mspan1,pr.mspan2];
-%pr.mspan=100:100:1000;
-pr.mspan = 3000;
-pr.num_trials = 1;
-pr.s_span = 800:800:800; % sparsity
+pr.m=400;
+pr.num_trials = 20;
+pr.s_span = 12:12:12; % sparsity
 pr.amp = 1; %amplification factor 
 pr.del_p = 0.005; % ps = del*m (sparsity pertaining to error in p)
 pr.method = 'justice-pursuit';
@@ -73,32 +27,26 @@ pr.init_method = 'simple-rcm';
 pr.svd_opt = 'svd';
 pr.plot_method = 'mean-error';
 
+all_rho = zeros(length(pr.mspan),length(pr.s_span),pr.num_trials);
+
 err = zeros(length(pr.mspan),length(pr.s_span),pr.num_trials);
 supp_recvr=zeros(length(pr.mspan),length(pr.s_span));
 init_err=zeros(length(pr.mspan),length(pr.s_span),pr.num_trials);
 reconst_err=zeros(length(pr.mspan),length(pr.s_span));
 
-for j = 1:length(pr.mspan)
-    m = pr.mspan(j);
-    
+for j = 1:length(pr.r_span)
+    m = pr.m;
+    R = pr.r_span(j);
     for k = 1:length(pr.s_span)
         s = pr.s_span(k);
         
         for l = 1:pr.num_trials
             %Generate the ground truth signal
-            %[z,z_ind] =  generate_signal(pr.n,s,pr.b, pr.amp);
+            [z,z_ind] =  generate_signal(pr.n,s,pr.b, pr.amp);
 
-            abs_c = abs(c');
-            [sorted_c, indx_c] = sort(abs_c,'descend');
-
-            z = zeros(size(c',1),1);
-            z(indx_c(1:s)) = c(indx_c(1:s)); 
-            supp_c = indx_c(1:s);
-            norm_z = norm(z);
-            z = z/norm(z);
-             %Generate the measurements: y=mod(Ax,R)
-            [y_mod,y, y_p, A] = modulo_measure_signal(m,z,pr.R);
-
+            %Generate the measurements: y=mod(Ax,R)
+            [y_mod, y, y_p, A] = modulo_measure_signal(m,z,pr.R);
+            all_rho(j,k,l) = max(abs(y));
             switch pr.init_method
                 case 'copram'
                     x_0 = copram_init(y_mod,A,s);
@@ -119,22 +67,9 @@ for j = 1:length(pr.mspan)
             end
 
 
-
-           
-            %Alt-Min
-        
-            %p = p_refined;
-            %y = A*x;
-
-            %p(idx) = (-sign(y(idx))+1)/2;
-
-            %disp('error in y after  correction')
-            %norm((y_mod-y_p*pr.R)-(y_mod-p*pr.R))/norm(y_mod-y_p*pr.R)
-
-
             fprintf('\n#iter\t\t|y-Ax|\t\t|x-z|\trecovery_prob\n')
-
-             p = p_refined;
+            
+            p = p_refined;
             for t=1:pr.max_iter
                 switch pr.method
                     case 'cosamp'
@@ -173,23 +108,7 @@ for j = 1:length(pr.mspan)
     end
     
 end
-if ~exist('./results', 'dir')
-       mkdir('./results')
-end
-z = norm_z*z;
-x = norm_z*x;
-im1 = waverec2(c,c_ind,wavname);
-im2 = waverec2(z, c_ind, wavname);
-im3 = waverec2(x,c_ind, wavname);
-figure, imshow([im1 im2 im3]), axis image;
-title('Original v/s Sparse v/s Reconstructed');
-psnr_err = psnr(im3,im2);
-save(['./results/image_rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...
-num2str(pr.s_span(1)),'_',num2str(pr.s_span(end)),'_m_',num2str(pr.mspan(1)),...
-'_',num2str(pr.mspan(end)),'_',pr.method,'_num_trials_',num2str(pr.num_trials),num2str(psnr_err)],'im2','im3','psnr_err');
-
-
-
+toc
 % p_err = y_p - p;
 % p_err_idx = find(p_err~=0);
 % y_true = A*z;
@@ -200,9 +119,19 @@ num2str(pr.s_span(1)),'_',num2str(pr.s_span(end)),'_m_',num2str(pr.mspan(1)),...
 % y_sorted = sort(y_true, 'ComparisonMethod','abs');
 % y_sorted(1:length(p_err_idx))
 
+if ~exist('./results', 'dir')
+       mkdir('./results')
+end
 
-
-% construct_subplots(reconst_err,pr,['rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...
+meanerr = squeeze(mean(reconst_err,3));
+for i = 1:size(meanerr,2)
+    fprintf('\nSparsity: %d\t\t\n', pr.s_span(i));
+    disp("Measurements");
+    disp(pr.mspan); 
+    disp("Mean errors");
+    disp(meanerr(1:length(pr.mspan),i));
+end
+% construct_subplots(reconst_err,pr, ['rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...
 %     num2str(pr.s_span(1)),'_',num2str(pr.s_span(end)),'_m_',num2str(pr.mspan(1)),...
 %     '_',num2str(pr.mspan(end)),'_',pr.method,'_num_trials_',num2str(pr.num_trials)],pr.plot_method,1);
 

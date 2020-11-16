@@ -8,8 +8,8 @@ pr.n = 1000; %length of the input signal
 pr.b = 1; %number of blocks if signal is block-sparse; otherwise keep 1
 pr.tol1 = 1e-5; %error tolerance for measurements
 pr.tol2 = 1e-7;
-pr.max_iter = 15;
-pr.R = 5; %period of the modulo function
+pr.max_iter = 5;
+pr.R = 3.2; %period of the modulo function
 pr.rho = 3;%spread of the true measurements, y =A*z
 pr.del = 1; %truncation factor for supp estimation
 pr.spgl_opts = spgSetParms('verbosity',0);
@@ -17,15 +17,17 @@ pr.spgl_opts = spgSetParms('verbosity',0);
 %pr.mspan1 = [100:100:2000];
 %pr.mspan2 = [600:100:1000];
 %pr.mspan=[pr.mspan1,pr.mspan2];
-pr.mspan=100:100:1000;
+pr.mspan=400:400:400;
 pr.num_trials = 10;
-pr.s_span = 3:3:12; % sparsity
+pr.s_span = 12:12:12; % sparsity
 pr.amp = 1; %amplification factor 
 pr.del_p = 0.005; % ps = del*m (sparsity pertaining to error in p)
 pr.method = 'justice-pursuit';
 pr.init_method = 'simple-rcm';
 pr.svd_opt = 'svd';
 pr.plot_method = 'mean-error';
+
+all_rho = zeros(length(pr.mspan),length(pr.s_span),pr.num_trials);
 
 err = zeros(length(pr.mspan),length(pr.s_span),pr.num_trials);
 supp_recvr=zeros(length(pr.mspan),length(pr.s_span));
@@ -34,7 +36,6 @@ reconst_err=zeros(length(pr.mspan),length(pr.s_span));
 
 for j = 1:length(pr.mspan)
     m = pr.mspan(j);
-    
     for k = 1:length(pr.s_span)
         s = pr.s_span(k);
         
@@ -43,8 +44,8 @@ for j = 1:length(pr.mspan)
             [z,z_ind] =  generate_signal(pr.n,s,pr.b, pr.amp);
 
             %Generate the measurements: y=mod(Ax,R)
-            [y_mod, y_p, A] = modulo_measure_signal(m,z,pr.R);
-
+            [y_mod, y, y_p, A] = modulo_measure_signal(m,z,pr.R);
+            all_rho(j,k,l) = max(abs(y));
             switch pr.init_method
                 case 'copram'
                     x_0 = copram_init(y_mod,A,s);
@@ -59,31 +60,16 @@ for j = 1:length(pr.mspan)
                     %extra line added to make x_0 sparse
                     x_0 = make_sparse(x_0,s);
                 case 'simple-rcm'
-                    [x_0,p_refined] = simple_rcm_init(A,y_mod,s,pr);
+                    p_refined = simple_rcm_init(A,y_mod,pr);
                     %extra line added to make x_0 sparse
-                    x_0 = make_sparse(x_0,s);
+                    %x_0 = make_sparse(x_0,s);
             end
-
-            %relative error in initial estimate
-            init_err(j,k,l) = norm(z-x_0)/norm(z);
-            disp('Initialization error')
-            norm(z-x_0)/norm(z)
-            %Alt-Min
-            x= x_0;
-            ps = floor(pr.del_p*m);
-            %p = p_refined;
-            %y = A*x;
-
-            %p(idx) = (-sign(y(idx))+1)/2;
-
-            %disp('error in y after  correction')
-            %norm((y_mod-y_p*pr.R)-(y_mod-p*pr.R))/norm(y_mod-y_p*pr.R)
 
 
             fprintf('\n#iter\t\t|y-Ax|\t\t|x-z|\trecovery_prob\n')
-
+            
+            p = p_refined;
             for t=1:pr.max_iter
-                p = (-sign(A*x)+1)/2;
                 switch pr.method
                     case 'cosamp'
                         x = cosamp((y_mod-pr.R*p)/sqrt(m), A/sqrt(m),s,100,x); %Its = 100
@@ -96,7 +82,7 @@ for j = 1:length(pr.mspan)
                     case 'justice-pursuit'
                         %[x,delta_p] = mod_l1_bp(y_mod,p,A,x,pr.R); % l1 -magic implementation -- slow
                         
-                        [x,delta_p] = mod_spgl1_bp(y_mod,p,A,x,pr.R, pr.spgl_opts); % SPGL1 implementation -- faster
+                        [x,delta_p] = mod_spgl1_bp(y_mod,p,A,pr.R, pr.spgl_opts); % SPGL1 implementation -- faster
                         
                     case 'basis-pursuit'
                         x = l1eq_pd(x,A/sqrt(m), [], (y_mod-pr.R*p)/sqrt(m)); % l1-magic implementation -- slow
@@ -104,8 +90,8 @@ for j = 1:length(pr.mspan)
                     case 'robust-cosamp'
                         [x,delta_p] = mod_cosamp(y_mod,p,A,x,pr.R,s,ps);
                 end
-                %p = (-sign(A*x)+1)/2;
-                %err_hist(t+1,1) = norm(y_mod-mod(A*x,R))/norm(y_mod);
+                p = (-sign(A*x)+1)/2;
+           
                 err_hist(t+1,1) = norm((y_mod-y_p*pr.R)-(A*x))/norm(y_mod-y_p*pr.R);
                 err_hist(t+1,2) = norm(x-z)/norm(z);
                 recovery_prob = nnz(~(p-y_p));
@@ -135,8 +121,16 @@ toc
 if ~exist('./results', 'dir')
        mkdir('./results')
 end
-pr.mspan1 = 100:100:1000;
-construct_subplots(reconst_err,pr,['rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...
+
+meanerr = squeeze(mean(reconst_err,3));
+for i = 1:size(meanerr,2)
+    fprintf('\nSparsity: %d\t\t\n', pr.s_span(i));
+    disp("Measurements");
+    disp(pr.mspan); 
+    disp("Mean errors");
+    disp(meanerr(1:length(pr.mspan),i));
+end
+construct_subplots(reconst_err,pr, ['rconst_',pr.init_method,'_amp_',num2str(pr.amp),'_r_',num2str(pr.R),'_s_',...
     num2str(pr.s_span(1)),'_',num2str(pr.s_span(end)),'_m_',num2str(pr.mspan(1)),...
     '_',num2str(pr.mspan(end)),'_',pr.method,'_num_trials_',num2str(pr.num_trials)],pr.plot_method,1);
 

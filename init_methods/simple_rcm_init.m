@@ -1,4 +1,6 @@
-function [x_0,p_refined] = simple_rcm_init(A,y_mod,s,pr)
+function p_refined = simple_rcm_init(A,y_mod,pr)
+    %let's not even return x_0. we dont even need it! all we need is just
+    %p!
     [m,n] = size(A);
     
     
@@ -30,7 +32,7 @@ function [x_0,p_refined] = simple_rcm_init(A,y_mod,s,pr)
     y_refined(indx.idx_3) = y_mod(indx.idx_3);
     p_refined(indx.idx_3) = 0;
     
-    x_0 = simple_rcm_initial_estimate(A,y_refined,s,pr.R,pr.del,pr.amp,indx);
+    %x_0 = simple_rcm_initial_estimate(A,y_refined,s,pr.R,pr.del,pr.amp,indx);
     
 end
 

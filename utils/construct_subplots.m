@@ -28,7 +28,7 @@ hold(axes1,'on');
 
 % Create plot
 for i = 1:size(Y1,2)
-    plot(pr.mspan1,Y1(1:length(pr.mspan1),i),'-s','DisplayName',['s=',num2str(pr.s_span(i))],'LineWidth',2);
+    plot(pr.mspan,Y1(1:length(pr.mspan),i),'-s','DisplayName',['s=',num2str(pr.s_span(i))],'LineWidth',2);
 end
 % Create xlabel
 xlabel({'\textbf{Number of measurements} $\mathbf{(m)}$'},...
