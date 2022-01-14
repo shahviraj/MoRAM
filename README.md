@@ -35,10 +35,14 @@ Parts of this code is adopted from codes written by Gauri Jagatap. We also ackno
 ## Cite
 Following bibtex can be used to cite our manuscript:
 ```
-@article{shah2018signal,
-  title={Signal reconstruction from modulo observations},
+@article{shah2021sparse,
+  title={Sparse signal recovery from modulo observations},
   author={Shah, Viraj and Hegde, Chinmay},
-  journal={arXiv preprint arXiv:1812.00557},
-  year={2018}
+  journal={EURASIP Journal on Advances in Signal Processing},
+  volume={2021},
+  number={1},
+  pages={1--17},
+  year={2021},
+  publisher={SpringerOpen}
 }
 ```
