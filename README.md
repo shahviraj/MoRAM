@@ -1,4 +1,6 @@
-##### Update (Nov. 2020): We revised the original MoRAM algorithm. While the arXiv version of our manuscript still contains the older version, this repository is updated to the latest version of our code and set of experiments. The updated manuscript would be uploaded on axXiv soon. Contact (use email id provided below) in case any help is needed.  
+##### Update (Jan. 2022): The latest version of the manuscript is available here: https://asp-eurasipjournals.springeropen.com/articles/10.1186/s13634-021-00722-w .
+
+##### Update (Nov. 2020): We revised the original MoRAM algorithm. While the arXiv version of our manuscript still contains the older version, this repository is updated to the latest version of our code and set of experiments.  
 ---
 # MoRAM - Modulo Recovery using Alternating Minimization
 ### This repository provides matlab implementation for the MoRAM algorithm as discussed in [Signal Reconstruction from Modulo Observations](https://arxiv.org/pdf/1812.00557.pdf).
